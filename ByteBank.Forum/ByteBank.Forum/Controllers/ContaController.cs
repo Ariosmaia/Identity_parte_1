@@ -5,6 +5,7 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
@@ -19,20 +20,21 @@ namespace ByteBank.Forum.Controllers
         }
 
         [HttpPost]
-        public ActionResult Registrar(ContaRegistrarViewModel modelo)
+        public async Task<ActionResult> Registrar(ContaRegistrarViewModel modelo)
         {
             if (ModelState.IsValid)
             {
                 var dbContext = new IdentityDbContext<UsuarioAplicacao>("DefaultConnection");
                 var userStore = new UserStore<UsuarioAplicacao>(dbContext);
                 var userManager = new UserManager<UsuarioAplicacao>(userStore);
+
                 var novoUsuario = new UsuarioAplicacao();
 
                 novoUsuario.Email = modelo.Email;
                 novoUsuario.UserName = modelo.UserName;
                 novoUsuario.NomeCompleto = modelo.NomeCompleto;
 
-                userManager.Create(novoUsuario, modelo.Senha);
+                await userManager.CreateAsync(novoUsuario, modelo.Senha);
                
 
                 //Podemos incluir o usuário
