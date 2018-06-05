@@ -1,8 +1,8 @@
 ﻿using ByteBank.Forum.Models;
 using ByteBank.Forum.ViewModels;
 using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
+using Microsoft.AspNet.Identity.EntityFramework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,12 +14,13 @@ namespace ByteBank.Forum.Controllers
 {
     public class ContaController : Controller
     {
+
         private UserManager<UsuarioAplicacao> _userManager;
         public UserManager<UsuarioAplicacao> UserManager
         {
             get
             {
-                if(_userManager == null)
+                if (_userManager == null)
                 {
                     var contextOwin = HttpContext.GetOwinContext();
                     _userManager = contextOwin.GetUserManager<UserManager<UsuarioAplicacao>>();
@@ -40,12 +41,8 @@ namespace ByteBank.Forum.Controllers
         [HttpPost]
         public async Task<ActionResult> Registrar(ContaRegistrarViewModel modelo)
         {
-            
-
             if (ModelState.IsValid)
             {
-                
-
                 var novoUsuario = new UsuarioAplicacao();
 
                 novoUsuario.Email = modelo.Email;
@@ -58,13 +55,11 @@ namespace ByteBank.Forum.Controllers
                 if (usuarioJaExiste)
                     return View("AguardandoConfirmacao");
 
-
-
                 var resultado = await UserManager.CreateAsync(novoUsuario, modelo.Senha);
 
                 if (resultado.Succeeded)
                 {
-                    //Enviar o e-mail e confirmação
+                    // Enviar o email de confirmação
                     await EnviarEmailDeConfirmacaoAsync(novoUsuario);
                     return View("AguardandoConfirmacao");
                 }
@@ -72,11 +67,9 @@ namespace ByteBank.Forum.Controllers
                 {
                     AdicionaErros(resultado);
                 }
-               
-
-                
             }
-            //Alguma coisa de errado aconteceu!!!
+
+            // Alguma coisa de errado aconteceu!
             return View(modelo);
         }
 
@@ -93,20 +86,27 @@ namespace ByteBank.Forum.Controllers
 
             await UserManager.SendEmailAsync(
                 usuario.Id,
-                "Fórum Byte: Confirmação de Email",
-                $"Bem vindo ao fórum ByteBank, clique aqui {linkDeCallback} para confirmar o seu e-mail");
+                "Fórum ByteBank - Confirmação de Email",
+                $"Bem vindo ao fórum ByteBank, clique aqui {linkDeCallback} para confirmar seu email!");
         }
 
-        public ActionResult ConfirmacaoEmail(string usuarioId, string token)
+        public async Task<ActionResult> ConfirmacaoEmail(string usuarioId, string token)
         {
-            throw new NotImplementedException();
+            if (usuarioId == null || token == null)
+                return View("Error");
+
+            var resultado = await UserManager.ConfirmEmailAsync(usuarioId, token);
+
+            if (resultado.Succeeded)
+                return RedirectToAction("Index", "Home");
+            else
+                return View("Error");
         }
 
         private void AdicionaErros(IdentityResult resultado)
         {
             foreach (var erro in resultado.Errors)
                 ModelState.AddModelError("", erro);
-            
         }
     }
 }

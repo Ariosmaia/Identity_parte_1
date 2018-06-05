@@ -11,7 +11,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Web;
 
-[assembly: OwinStartup(typeof (ByteBank.Forum.Startup))]
+[assembly: OwinStartup(typeof(ByteBank.Forum.Startup))]
 
 namespace ByteBank.Forum
 {
@@ -20,10 +20,10 @@ namespace ByteBank.Forum
         public void Configuration(IAppBuilder builder)
         {
             builder.CreatePerOwinContext<DbContext>(() =>
-            new IdentityDbContext<UsuarioAplicacao>("DefaultConnection"));
+                new IdentityDbContext<UsuarioAplicacao>("DefaultConnection"));
 
             builder.CreatePerOwinContext<IUserStore<UsuarioAplicacao>>(
-                (opcoes, contextoOwin) => 
+                (opcoes, contextoOwin) =>
                 {
                     var dbContext = contextoOwin.Get<DbContext>();
                     return new UserStore<UsuarioAplicacao>(dbContext);
@@ -46,14 +46,17 @@ namespace ByteBank.Forum
                         ObrigatorioDigitos = true,
                         ObrigatorioLowerCase = true,
                         ObrigatorioUpperCase = true
-                    
                     };
 
                     userManager.EmailService = new EmailServico();
 
-                    return userManager; 
-                });
+                    var dataProtectionProvider = opcoes.DataProtectionProvider;
+                    var dataProtectionProviderCreated = dataProtectionProvider.Create("ByteBank.Forum");
 
+                    userManager.UserTokenProvider = new DataProtectorTokenProvider<UsuarioAplicacao>(dataProtectionProviderCreated);
+
+                    return userManager;
+                });
         }
     }
 }
