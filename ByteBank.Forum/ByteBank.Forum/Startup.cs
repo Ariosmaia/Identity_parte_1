@@ -49,6 +49,8 @@ namespace ByteBank.Forum
                     
                     };
 
+                    userManager.EmailService = new EmailServico();
+
                     return userManager; 
                 });
 
