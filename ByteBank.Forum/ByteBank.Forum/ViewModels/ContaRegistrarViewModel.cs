@@ -4,15 +4,16 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
+//Atributos que irão aparecer no formulário
 namespace ByteBank.Forum.ViewModels
 {
     public class ContaRegistrarViewModel
     {
-        [Required]
+        [Required] //Obrigatorio
         public string UserName { get; set; }
 
         [Required]
-        [Display(Name = "Nome Completo")]
+        [Display(Name = "Nome Completo")]// Informação que mostra para o usuário
         public string NomeCompleto { get; set; }
 
         [Required]

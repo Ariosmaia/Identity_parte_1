@@ -9,6 +9,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using ByteBank.Forum.App_Start.Identity;
+
+//Gerenciamento da conta do usuário
 
 namespace ByteBank.Forum.Controllers
 {
@@ -22,8 +25,8 @@ namespace ByteBank.Forum.Controllers
             {
                 if (_userManager == null)
                 {
-                    var contextOwin = HttpContext.GetOwinContext();
-                    _userManager = contextOwin.GetUserManager<UserManager<UsuarioAplicacao>>();
+                    var contextOwin = HttpContext.GetOwinContext(); // Pega o contexto do Owin
+                    _userManager = contextOwin.GetUserManager<UserManager<UsuarioAplicacao>>(); // Joga o contexto dentro da variavel
                 }
                 return _userManager;
             }
@@ -33,16 +36,22 @@ namespace ByteBank.Forum.Controllers
             }
         }
 
+        /////////////////////////////////////
+        // GET: /Account/Login/Acessar a página
         public ActionResult Registrar()
         {
             return View();
         }
 
+        // POST: /Account/Register/Envia as informações
         [HttpPost]
         public async Task<ActionResult> Registrar(ContaRegistrarViewModel modelo)
         {
+            //Verifica se o estado do nosso modelo é valido ou não.
             if (ModelState.IsValid)
             {
+                // IdentUser já possui Email, UserName, entre outros, dentro das interfaces. Veja no F12.
+                // IdentityDbContext usa uma tabela de IdentityUser, somos obrigados a usa-lá. Ele já faz o DbSet.
                 var novoUsuario = new UsuarioAplicacao();
 
                 novoUsuario.Email = modelo.Email;
@@ -56,6 +65,7 @@ namespace ByteBank.Forum.Controllers
                     return View("AguardandoConfirmacao");
 
                 var resultado = await UserManager.CreateAsync(novoUsuario, modelo.Senha);
+                // Adiciona e salva no lugar do add e save chanches do Entity.
 
                 if (resultado.Succeeded)
                 {
@@ -82,12 +92,13 @@ namespace ByteBank.Forum.Controllers
                     "ConfirmacaoEmail",
                     "Conta",
                     new { usuarioId = usuario.Id, token = token },
-                    Request.Url.Scheme);
+                    protocol: Request.Url.Scheme);
 
             await UserManager.SendEmailAsync(
                 usuario.Id,
                 "Fórum ByteBank - Confirmação de Email",
                 $"Bem vindo ao fórum ByteBank, clique aqui {linkDeCallback} para confirmar seu email!");
+
         }
 
         public async Task<ActionResult> ConfirmacaoEmail(string usuarioId, string token)

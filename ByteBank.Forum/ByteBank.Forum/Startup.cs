@@ -11,7 +11,11 @@ using System.Data.Entity;
 using System.Linq;
 using System.Web;
 
+//Owin é um protocolo de comunicação entre aplicação e o servidor
+//É executado sempre que tem uma requisição
+
 [assembly: OwinStartup(typeof(ByteBank.Forum.Startup))]
+//Atributo que define qual a classe de inicialização do Owin
 
 namespace ByteBank.Forum
 {
@@ -19,21 +23,30 @@ namespace ByteBank.Forum
     {
         public void Configuration(IAppBuilder builder)
         {
+            //1)Definindo o DbContext => IdentityDbContext do Usuário Aplicação + Nome da Connetion String
             builder.CreatePerOwinContext<DbContext>(() =>
-                new IdentityDbContext<UsuarioAplicacao>("DefaultConnection"));
+                new IdentityDbContext<UsuarioAplicacao>("DefaultConnection"));// Busca a connection string no webconfig
 
+
+            //2)
+            //UseStore gera a interface entre o Identity e o banco de dados, usa a IUserStore para não depender do EF.
+            //Manipula os usuários dentro IdentityFramework
+            //IUserStore separa as camadas
             builder.CreatePerOwinContext<IUserStore<UsuarioAplicacao>>(
                 (opcoes, contextoOwin) =>
                 {
-                    var dbContext = contextoOwin.Get<DbContext>();
-                    return new UserStore<UsuarioAplicacao>(dbContext);
+                    var dbContext = contextoOwin.Get<DbContext>(); // Pega o DbContext que criei lá em cima
+                    return new UserStore<UsuarioAplicacao>(dbContext); // Retorna o UserStore da Aplicação + DbContext
                 });
 
+
+            //3)
+            //UserManager gerencia o Identity, o UserStore faz o link para o Entity
             builder.CreatePerOwinContext<UserManager<UsuarioAplicacao>>(
                 (opcoes, contextoOwin) =>
                 {
-                    var userStore = contextoOwin.Get<IUserStore<UsuarioAplicacao>>();
-                    var userManager = new UserManager<UsuarioAplicacao>(userStore);
+                    var userStore = contextoOwin.Get<IUserStore<UsuarioAplicacao>>(); //Pega a UserStore criada
+                    var userManager = new UserManager<UsuarioAplicacao>(userStore); // Cria nosso UserManager
 
                     var userValidator = new UserValidator<UsuarioAplicacao>(userManager);
                     userValidator.RequireUniqueEmail = true;
