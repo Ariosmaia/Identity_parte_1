@@ -48,10 +48,18 @@ namespace ByteBank.Forum
                     var userStore = contextoOwin.Get<IUserStore<UsuarioAplicacao>>(); //Pega a UserStore criada
                     var userManager = new UserManager<UsuarioAplicacao>(userStore); // Cria nosso UserManager
 
-                    var userValidator = new UserValidator<UsuarioAplicacao>(userManager);
-                    userValidator.RequireUniqueEmail = true;
 
+                    //Criando validação de usuários
+                    // UserValidor + UsuuarioAPlicação + UsurManager
+                    var userValidator = new UserValidator<UsuarioAplicacao>(userManager);
+                    userValidator.RequireUniqueEmail = true;// Retorna os emails unicos na base de dados
+
+
+                    // Atribui o UserValidator no UserValidator
                     userManager.UserValidator = userValidator;
+
+
+
                     userManager.PasswordValidator = new SenhaValidador()
                     {
                         TamanhoRequerido = 6,

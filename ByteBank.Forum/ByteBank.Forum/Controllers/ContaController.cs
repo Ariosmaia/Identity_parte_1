@@ -58,16 +58,21 @@ namespace ByteBank.Forum.Controllers
                 novoUsuario.UserName = modelo.UserName;
                 novoUsuario.NomeCompleto = modelo.NomeCompleto;
 
-                var usuario = await UserManager.FindByEmailAsync(modelo.Email);
-                var usuarioJaExiste = usuario != null;
 
+
+                var usuario = await UserManager.FindByEmailAsync(modelo.Email);//Busca um usuário que já existe.
+                var usuarioJaExiste = usuario != null;// Diferente de null já foi cadastrado. Não devemos vazar dos dados do usuario
+
+                //Redireciona o usuario para não mostrar os dados
                 if (usuarioJaExiste)
                     return View("AguardandoConfirmacao");
 
                 var resultado = await UserManager.CreateAsync(novoUsuario, modelo.Senha);
                 // Adiciona e salva no lugar do add e save chanches do Entity.
 
-                if (resultado.Succeeded)
+
+                //CreatedAsync tem tem o IdentityResult, que possui uma propriedade que tem um bool de Succeed, ou não
+                if (resultado.Succeeded)// Verifica se o resultado do Created teve sucesso
                 {
                     // Enviar o email de confirmação
                     await EnviarEmailDeConfirmacaoAsync(novoUsuario);
@@ -75,6 +80,8 @@ namespace ByteBank.Forum.Controllers
                 }
                 else
                 {
+                    // Metodo criado abaixo, para adicinae erros.
+                    //Metodo erros
                     AdicionaErros(resultado);
                 }
             }
@@ -116,8 +123,12 @@ namespace ByteBank.Forum.Controllers
 
         private void AdicionaErros(IdentityResult resultado)
         {
+            //Metodo erros
+            // Para cada erro encontrado no resultao
+            // Usa a prorpriedade de "Errors"
             foreach (var erro in resultado.Errors)
                 ModelState.AddModelError("", erro);
+            //Adiciona um erro com modelState.
         }
     }
 }

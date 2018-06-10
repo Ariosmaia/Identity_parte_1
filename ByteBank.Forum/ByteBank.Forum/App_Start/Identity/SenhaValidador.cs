@@ -8,6 +8,7 @@ using System.Web;
 
 namespace ByteBank.Forum.App_Start.Identity
 {
+    //UserManager usa o PassawordValidator, usa o IdentitiyValidor tbm.
     public class SenhaValidador : IIdentityValidator<string>
     {
 
