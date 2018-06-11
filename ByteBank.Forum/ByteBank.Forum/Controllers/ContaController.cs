@@ -92,11 +92,12 @@ namespace ByteBank.Forum.Controllers
 
         private async Task EnviarEmailDeConfirmacaoAsync(UsuarioAplicacao usuario)
         {
+            //Cria token
             var token = await UserManager.GenerateEmailConfirmationTokenAsync(usuario.Id);
 
             var linkDeCallback =
                 Url.Action(
-                    "ConfirmacaoEmail",
+                    "ConfirmacaoEmail", //Criei Action abaixo
                     "Conta",
                     new { usuarioId = usuario.Id, token = token },
                     protocol: Request.Url.Scheme);
@@ -108,14 +109,16 @@ namespace ByteBank.Forum.Controllers
 
         }
 
+        // Action de confirmação de email
         public async Task<ActionResult> ConfirmacaoEmail(string usuarioId, string token)
         {
+            //Não pode ser null
             if (usuarioId == null || token == null)
-                return View("Error");
+                return View("Error");// View que vem como padrão
 
-            var resultado = await UserManager.ConfirmEmailAsync(usuarioId, token);
+            var resultado = await UserManager.ConfirmEmailAsync(usuarioId, token); //Resultado
 
-            if (resultado.Succeeded)
+            if (resultado.Succeeded)// Usar resultado e confirmar
                 return RedirectToAction("Index", "Home");
             else
                 return View("Error");

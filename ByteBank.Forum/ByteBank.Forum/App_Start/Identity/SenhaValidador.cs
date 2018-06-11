@@ -22,6 +22,7 @@ namespace ByteBank.Forum.App_Start.Identity
         {
             var erros = new List<string>();
 
+            //Define os parametros no startup
             if(ObrigatorioCaracteresEspeciais && !VerificaCaracteresEspeciais(item))
                 erros.Add("A senha deve conter caracteres especiais");
 
@@ -37,6 +38,7 @@ namespace ByteBank.Forum.App_Start.Identity
             if (ObrigatorioDigitos && !VerificaDigito(item))
                 erros.Add($"A senha deve conter no mínimo um dígito.");
 
+            //Caso tenha agluns desses erros
             if (erros.Any())
                 return IdentityResult.Failed(erros.ToArray());
             else
@@ -45,7 +47,7 @@ namespace ByteBank.Forum.App_Start.Identity
         }
 
         private bool VerificaTamanhoRequerido(string senha) =>
-           senha?.Length >= TamanhoRequerido;
+           senha?.Length >= TamanhoRequerido; // Será falso caso seja nula
 
         private bool VerificaCaracteresEspeciais(string senha) =>
             Regex.IsMatch(senha, @"[~`!@#$%^&*()+=|\\{}':;.,<>/?[\]""_-]");

@@ -55,11 +55,12 @@ namespace ByteBank.Forum
                     userValidator.RequireUniqueEmail = true;// Retorna os emails unicos na base de dados
 
 
-                    // Atribui o UserValidator no UserValidator
+                    // Atribui o UserValidator no UserManeger
                     userManager.UserValidator = userValidator;
 
 
-
+                    //SenhaValidador
+                    //Definindo os valores da classe
                     userManager.PasswordValidator = new SenhaValidador()
                     {
                         TamanhoRequerido = 6,
@@ -69,11 +70,16 @@ namespace ByteBank.Forum
                         ObrigatorioUpperCase = true
                     };
 
+
+                    // Serviço de e-mail
                     userManager.EmailService = new EmailServico();
 
+                    // Provedor de obejtos que oferece proteção para os dados
                     var dataProtectionProvider = opcoes.DataProtectionProvider;
+                    // Implmenta um obejto Idataprotector. String com o nome da aplicação
                     var dataProtectionProviderCreated = dataProtectionProvider.Create("ByteBank.Forum");
-
+                    
+                    //Criando atavés das opções do Owin, tada  vez que precisa de um token ele será gerado
                     userManager.UserTokenProvider = new DataProtectorTokenProvider<UsuarioAplicacao>(dataProtectionProviderCreated);
 
                     return userManager;
